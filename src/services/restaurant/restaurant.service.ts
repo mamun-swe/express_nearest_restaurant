@@ -24,16 +24,19 @@ const nearestRestaurant = async ({
   longitude: number;
   latitude: number;
 }): Promise<IRestaurant[] | []> => {
-  return await Models.Restaurant.find({
-    $near: {
-      $geometry: {
-        type: "Point",
-        coordinates: [longitude, latitude],
+  return await Models.Restaurant.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        distanceField: "dist.calculated",
+        maxDistance: 2000,
+        spherical: true,
       },
-      $minDistance: 0,
-      $maxDistance: 100,
     },
-  });
+  ]);
 };
 
 export const restaurantService = {
